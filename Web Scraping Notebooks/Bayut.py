@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
 import pandas as pd
+import os
 
 driver = webdriver.Chrome()
 wait = WebDriverWait(driver, 30)
@@ -55,20 +56,32 @@ def extract_apartments():
 
 all_apartments = []
 
-for page in range(1, 2):
+for page in range(2000, 2500):
     if page == 1:
         url = "https://www.bayut.eg/en/egypt/apartments-for-sale/"
     else:
         url = f"https://www.bayut.eg/en/egypt/apartments-for-sale/page-{page}/"
 
     driver.get(url)
-    time.sleep(3)
     page_data = extract_apartments()
     all_apartments.extend(page_data)
 
-df = pd.DataFrame(all_apartments)
-df.to_excel("bayut_apartments.xlsx", index=False)
+# Create DataFrame from your new scrape
+df_new = pd.DataFrame(all_apartments)
 
+file_name = "bayut_apartments.xlsx"
+
+if os.path.exists(file_name):
+    # Load existing Excel file
+    df_existing = pd.read_excel(file_name)
+
+    # Append new data
+    df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+else:
+    df_combined = df_new
+
+# Save back to Excel
+df_combined.to_excel(file_name, index=False)
 
 
 
